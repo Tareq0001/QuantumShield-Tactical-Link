@@ -44,7 +44,7 @@
             <div>
                 <div class="flex items-center space-x-2 rtl:space-x-reverse">
                     <span class="font-chakra font-bold text-base md:text-lg tracking-wider text-purple-400">QUANTUM<span class="text-white">SHIELD</span> <span class="text-xs text-amber-400 font-mono">[TACTICAL PQC]</span></span>
-                    <span class="hidden md:inline-block px-2 py-0.5 text-[9px] font-bold bg-purple-950 text-purple-300 border border-purple-700/60 rounded">NIST FIPS 203/204 // LINK-16</span>
+                    <span class="hidden md:inline-block px-2 py-0.5 text-[9px] font-bold bg-purple-950 text-purple-300 border border-purple-700/60 rounded">NIST FIPS 203 // LINK-16</span>
                 </div>
                 <p class="text-[9px] text-slate-400 -mt-1 hidden sm:block" id="subHeaderDesc">Post-Quantum Cryptography (ML-KEM / ML-DSA), Tactical Data Link & FHSS Anti-Jamming</p>
             </div>
@@ -54,11 +54,11 @@
         <div class="hidden lg:flex items-center space-x-5 rtl:space-x-reverse text-xs font-mono">
             <div>
                 <span class="text-slate-500 text-[10px]">ALGORITHM:</span>
-                <span id="telAlgo" class="font-bold text-purple-400">ML-KEM-768 (KYBER)</span>
+                <span id="telAlgo" class="font-bold text-purple-400">ML-KEM-1024 (KYBER)</span>
             </div>
             <div>
                 <span class="text-slate-500 text-[10px]">QUANTUM SECURITY:</span>
-                <span class="font-bold text-emerald-400">NIST CATEGORY 3 (192-BIT)</span>
+                <span class="font-bold text-emerald-400">NIST CATEGORY 5 (256-BIT)</span>
             </div>
             <div>
                 <span class="text-slate-500 text-[10px]">HOP RATE:</span>
@@ -74,7 +74,7 @@
         <div class="flex items-center space-x-2 rtl:space-x-reverse">
             <!-- Audio Toggle -->
             <button id="soundBtn" class="p-1.5 rounded bg-slate-900 border border-slate-700 hover:border-purple-500 text-slate-400 hover:text-purple-400 transition" title="Data Burst FSK Audio">
-                <i class="fa-solid fa-volume-high" id="soundIcon"></i>
+                <i class="fa-solid fa-volume-xmark" id="soundIcon"></i>
             </button>
             <!-- Language Toggle -->
             <button id="langToggleBtn" class="px-2.5 py-1 text-xs font-bold rounded bg-purple-950 border border-purple-600/60 text-purple-300 hover:bg-purple-900 transition">
@@ -94,7 +94,7 @@
                 <div class="flex justify-between items-center mb-3">
                     <span class="text-xs font-bold text-purple-400 flex items-center">
                         <i class="fa-solid fa-key mr-1.5 text-purple-400"></i>
-                        <span id="txtHandshakeTitle">TACTICAL POST-QUANTUM KEY ENCAPSULATION (ML-KEM)</span>
+                        <span id="txtHandshakeTitle">TACTICAL POST-QUANTUM KEY ENCAPSULATION (NIST FIPS 203 ML-KEM-1024)</span>
                     </span>
                     <button id="rekeyBtn" class="px-2.5 py-1 text-xs font-bold rounded bg-purple-600 hover:bg-purple-500 text-white shadow-md transition flex items-center space-x-1">
                         <i class="fa-solid fa-arrows-rotate"></i>
@@ -106,18 +106,18 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-xs font-mono">
                     <div class="bg-slate-950 p-2.5 rounded-lg border border-purple-900/60 space-y-1">
                         <div class="text-[10px] text-purple-400 font-bold">STAGE 1: KEYGEN</div>
-                        <div class="text-slate-300">Public Key (pk): <span class="text-purple-300 break-all font-mono text-[10px]" id="txtPk">0x9a4f...e81b (1,184 Bytes)</span></div>
-                        <div class="text-[10px] text-slate-500">Module-Lattice A·s + e mod q</div>
+                        <div class="text-slate-300">Public Key (pk): <span class="text-purple-300 break-all font-mono text-[10px]" id="txtPk">0x9a4fe8...1ba0 (1,568 Bytes)</span></div>
+                        <div class="text-[10px] text-slate-500">Module-Lattice A·s + e mod 3329</div>
                     </div>
                     <div class="bg-slate-950 p-2.5 rounded-lg border border-purple-900/60 space-y-1">
                         <div class="text-[10px] text-cyan-400 font-bold">STAGE 2: ENCAPSULATION</div>
-                        <div class="text-slate-300">Ciphertext (c): <span class="text-cyan-300 break-all font-mono text-[10px]" id="txtCt">0x317d...4a92 (1,088 Bytes)</span></div>
+                        <div class="text-slate-300">Ciphertext (c): <span class="text-cyan-300 break-all font-mono text-[10px]" id="txtCt">0x317d4a...92b5 (1,568 Bytes)</span></div>
                         <div class="text-[10px] text-slate-500">Shared Secret K = SHA3-256(m, c)</div>
                     </div>
                     <div class="bg-slate-950 p-2.5 rounded-lg border border-purple-900/60 space-y-1">
                         <div class="text-[10px] text-emerald-400 font-bold">STAGE 3: DECAPSULATION</div>
-                        <div class="text-slate-300">Shared Secret (SS): <span class="text-emerald-300 break-all font-mono text-[10px]" id="txtSs">0xbf62...890e (32 Bytes)</span></div>
-                        <div class="text-[10px] text-slate-500">AES-256-GCM Session Established</div>
+                        <div class="text-slate-300">Shared Secret (SS): <span class="text-emerald-300 break-all font-mono text-[10px]" id="txtSs">0xbf6289...0eff (32 Bytes)</span></div>
+                        <div class="text-[10px] text-slate-500">ChaCha20-Poly1305 Session Active</div>
                     </div>
                 </div>
             </div>
@@ -140,18 +140,18 @@
                 <div class="bg-slate-950 p-2.5 rounded border border-slate-800 font-mono text-xs space-y-1.5 mb-2.5">
                     <div class="text-slate-400">Protocol: <span class="text-purple-300">STANAG 5516 / Link-16 Tactical Data Link</span></div>
                     <div class="text-slate-400">Message ID: <span id="msgHeaderId" class="text-cyan-400 font-bold">J2.2 (Air Precise Participant Location & Identification)</span></div>
-                    <div class="text-slate-400">Cryptographic Wrapper: <span class="text-emerald-400 font-bold">ML-DSA-65 (Dilithium) Quantum Signature</span></div>
+                    <div class="text-slate-400">Cryptographic Wrapper: <span class="text-emerald-400 font-bold">ChaCha20-Poly1305 AEAD + 64-bit Anti-Replay</span></div>
                     <div class="text-slate-400">Link Security: <span class="text-purple-400 font-bold">TSEC / MSEC Key Mat: CRYPTO-NET-SAUDI-DEFENSE</span></div>
                 </div>
 
                 <!-- Hex Stream -->
                 <div class="text-[10px] text-slate-500 font-mono mb-1">ENCRYPTED TACTICAL HEX STREAM:</div>
                 <div id="hexStream" class="bg-black/90 p-2 rounded border border-slate-800 font-mono text-[11px] text-purple-400 flex-1 overflow-y-auto leading-relaxed">
-                    0000: 53 54 41 4e 41 47 35 35 31 36 00 02 02 4b 59 42  STANAG5516..KYB<br>
-                    0010: 45 52 37 36 38 9a 4f 3c 11 8a 2e 09 ff 18 c4 32  ER768.O<.......2<br>
-                    0020: 89 d4 12 a8 5e 33 b1 0c 77 9f 40 d5 e8 1b aa 29  ....^3..w.@....)<br>
-                    0030: 24 71 36 00 46 67 53 00 1f 40 01 2c 00 00 ef 71  $q6.FgS..@.,...q<br>
-                    0040: 8a 4c 19 3e 88 a1 00 ff 4d 4c 44 53 41 36 35 00  .L.>....MLDSA65.
+                    0000: 51 53 02 02 00 00 00 00 00 00 00 01 00 01 00 01  QS..............<br>
+                    0010: 00 3c 00 01 00 01 00 00 00 00 00 00 00 01 9a 4f  .<..............O<br>
+                    0020: 3c 11 8a 2e 09 ff 18 c4 32 89 d4 12 a8 5e 33 b1  <.......2....^3.<br>
+                    0030: 0c 77 9f 40 d5 e8 1b aa 29 24 71 36 00 46 67 53  .w.@....)$q6.FgS<br>
+                    0040: 00 1f 40 01 2c 00 00 ef 71 8a 4c 19 3e 88 a1 00  ..@.,...q.L.>...
                 </div>
             </div>
 
@@ -172,7 +172,7 @@
                 <canvas id="fhssCanvas" width="350" height="150" class="w-full bg-black rounded border border-slate-800"></canvas>
                 <div class="flex justify-between items-center text-[10px] text-slate-400 mt-1.5 font-mono">
                     <span>BANDWIDTH: <span class="text-purple-400 font-bold">237 MHz</span></span>
-                    <span>HOP PATTERN: <span class="text-emerald-400 font-bold">PSEUDO-RANDOM</span></span>
+                    <span>HOP PATTERN: <span class="text-emerald-400 font-bold">PSEUDO-RANDOM TRANSEC</span></span>
                 </div>
             </div>
 
@@ -201,14 +201,14 @@
                         <div class="text-[9px] text-slate-500 mt-1">Shor's Algorithm: O((log N)³) Polynomial Time Break</div>
                     </div>
 
-                    <!-- Post-Quantum ML-KEM-768 -->
+                    <!-- Post-Quantum ML-KEM-1024 -->
                     <div class="p-2 rounded bg-slate-950 border border-slate-800">
                         <div class="flex justify-between mb-1">
-                            <span class="text-slate-400">Post-Quantum ML-KEM (Lattice LWE):</span>
-                            <span class="text-emerald-400 font-bold">IMMUNE (2¹⁹² Security)</span>
+                            <span class="text-slate-400">Post-Quantum ML-KEM-1024 (Lattice LWE):</span>
+                            <span class="text-emerald-400 font-bold">IMMUNE (2²⁵⁶ Security)</span>
                         </div>
                         <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
-                            <div class="bg-emerald-500 h-full" style="width: 5%"></div>
+                            <div class="bg-emerald-500 h-full" style="width: 2%"></div>
                         </div>
                         <div class="text-[9px] text-slate-500 mt-1">Shortest Vector Problem (SVP): Exponential Complexity</div>
                     </div>
@@ -217,7 +217,7 @@
                 <!-- Audit Log -->
                 <div class="text-[10px] text-slate-500 font-mono mt-2">SECURITY EVENT LOG:</div>
                 <div id="pqcLog" class="bg-black/90 p-2 rounded border border-slate-800 font-mono text-[10px] text-slate-300 flex-1 overflow-y-auto space-y-1">
-                    <div class="text-emerald-400">[PQC] NIST FIPS 203 ML-KEM parameters verified.</div>
+                    <div class="text-emerald-400">[PQC] NIST FIPS 203 ML-KEM-1024 parameters initialized.</div>
                     <div class="text-purple-400">[NET] Link-16 Cryptographic Net variable authenticated.</div>
                     <div class="text-cyan-400">[FHSS] Carrier synthesizer synchronized to atomic clock.</div>
                 </div>
@@ -232,152 +232,7 @@
 
     </div>
 
-    <!-- Script Logic -->
-    <script>
-        const I18N = {
-            en: {
-                subDesc: "Post-Quantum Cryptography (ML-KEM / ML-DSA), Tactical Data Link & FHSS Anti-Jamming",
-                handshakeTitle: "TACTICAL POST-QUANTUM KEY ENCAPSULATION (ML-KEM)",
-                rekeyBtn: "GENERATE NEW PQC KEYPAIR",
-                msgTitle: "LINK-16 J-SERIES TACTICAL MESSAGE DISSECTOR",
-                fhssTitle: "FHSS FAST FREQUENCY HOPPING SPECTROGRAM",
-                shorTitle: "SHOR'S QUANTUM ATTACK RESILIENCE"
-            },
-            ar: {
-                subDesc: "تشفير ما بعد الكم (ML-KEM / ML-DSA)، شبكات الاتصال التكتيكي ومقاومة التشويش بالقفز الترددي",
-                handshakeTitle: "تبادل المفاتيح الكمومية الآمنة (ML-KEM Kyber)",
-                rekeyBtn: "توليد زوج مفاتيح شبكية جديد",
-                msgTitle: "محلل رسائل شبكة Link-16 العسكرية التكتيكية",
-                fhssTitle: "شلال القفز الترددي فائق السرعة (FHSS)",
-                shorTitle: "محاكاة مناعة التشفير ضد خوارزمية شور الكمومية"
-            }
-        };
-
-        let currentLang = 'en';
-
-        // Sound Synthesis (Web Audio API)
-        let audioCtx = null;
-        let isAudioMuted = true;
-
-        function initAudio() {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-
-        function playBurstTone() {
-            if (isAudioMuted || !audioCtx) return;
-            const now = audioCtx.currentTime;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'square';
-            osc.frequency.setValueAtTime(1400, now);
-            osc.frequency.setValueAtTime(2200, now + 0.04);
-            osc.frequency.setValueAtTime(1800, now + 0.08);
-            gain.gain.setValueAtTime(0.15, now);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start(now);
-            osc.stop(now + 0.15);
-        }
-
-        // FHSS Spectrogram Waterfall Canvas
-        const fhssCanvas = document.getElementById('fhssCanvas');
-        const fCtx = fhssCanvas.getContext('2d');
-        const hopsHistory = [];
-
-        function drawFhss() {
-            fCtx.fillStyle = 'rgba(2, 6, 23, 0.2)';
-            fCtx.fillRect(0, 0, fhssCanvas.width, fhssCanvas.height);
-
-            // Shift image down
-            const imgData = fCtx.getImageData(0, 0, fhssCanvas.width, fhssCanvas.height - 2);
-            fCtx.putImageData(imgData, 0, 2);
-
-            // Draw new random frequency hop burst across 51 channels
-            const channels = 51;
-            const ch = Math.floor(Math.random() * channels);
-            const x = (ch / channels) * fhssCanvas.width;
-            const w = fhssCanvas.width / channels;
-
-            fCtx.fillStyle = Math.random() > 0.3 ? '#a855f7' : '#06b6d4';
-            fCtx.fillRect(x, 0, w - 1, 3);
-        }
-
-        setInterval(drawFhss, 40);
-
-        // Rekey Simulation
-        document.getElementById('rekeyBtn').addEventListener('click', () => {
-            initAudio();
-            playBurstTone();
-            const randHex = () => Math.random().toString(16).substring(2, 10);
-            document.getElementById('txtPk').innerText = `0x${randHex()}...${randHex()} (1,184 Bytes)`;
-            document.getElementById('txtCt').innerText = `0x${randHex()}...${randHex()} (1,088 Bytes)`;
-            document.getElementById('txtSs').innerText = `0x${randHex()}...${randHex()} (32 Bytes)`;
-
-            const log = document.getElementById('pqcLog');
-            const div = document.createElement('div');
-            div.className = "text-purple-400";
-            div.innerText = `[REKEY] New ML-KEM-768 key encapsulation completed at ${new Date().toTimeString().split(' ')[0]}`;
-            log.prepend(div);
-        });
-
-        // J-Series Message Switcher
-        document.getElementById('msgJ2Btn').addEventListener('click', () => {
-            document.getElementById('msgHeaderId').innerText = "J2.2 (Air Precise Participant Location & Identification)";
-            document.getElementById('msgJ2Btn').className = "px-2 py-0.5 text-[10px] font-bold rounded bg-purple-600 text-white";
-            document.getElementById('msgJ3Btn').className = "px-2 py-0.5 text-[10px] font-bold rounded bg-slate-800 text-slate-300";
-            document.getElementById('msgJ12Btn').className = "px-2 py-0.5 text-[10px] font-bold rounded bg-slate-800 text-slate-300";
-            playBurstTone();
-        });
-
-        document.getElementById('msgJ3Btn').addEventListener('click', () => {
-            document.getElementById('msgHeaderId').innerText = "J3.5 (Land Track & Surface-to-Air Missile Battery Site)";
-            document.getElementById('msgJ3Btn').className = "px-2 py-0.5 text-[10px] font-bold rounded bg-purple-600 text-white";
-            document.getElementById('msgJ2Btn').className = "px-2 py-0.5 text-[10px] font-bold rounded bg-slate-800 text-slate-300";
-            document.getElementById('msgJ12Btn').className = "px-2 py-0.5 text-[10px] font-bold rounded bg-slate-800 text-slate-300";
-            playBurstTone();
-        });
-
-        document.getElementById('msgJ12Btn').addEventListener('click', () => {
-            document.getElementById('msgHeaderId').innerText = "J12.0 (Mission Assignment / Air Intercept Vector Tasking)";
-            document.getElementById('msgJ12Btn').className = "px-2 py-0.5 text-[10px] font-bold rounded bg-purple-600 text-white";
-            document.getElementById('msgJ2Btn').className = "px-2 py-0.5 text-[10px] font-bold rounded bg-slate-800 text-slate-300";
-            document.getElementById('msgJ3Btn').className = "px-2 py-0.5 text-[10px] font-bold rounded bg-slate-800 text-slate-300";
-            playBurstTone();
-        });
-
-        // Quantum Attack Simulation
-        document.getElementById('simulateQuantumAttackBtn').addEventListener('click', () => {
-            initAudio();
-            playBurstTone();
-            const log = document.getElementById('pqcLog');
-            const div = document.createElement('div');
-            div.className = "text-rose-400 font-bold";
-            div.innerText = `[ATTACK] Shor's 4096-Qubit Simulation: RSA-2048 Broken in 18.4s. ML-KEM Lattice Structure Intact!`;
-            log.prepend(div);
-        });
-
-        // Sound Toggle
-        document.getElementById('soundBtn').addEventListener('click', () => {
-            initAudio();
-            isAudioMuted = !isAudioMuted;
-            document.getElementById('soundIcon').className = isAudioMuted ? "fa-solid fa-volume-xmark" : "fa-solid fa-volume-high text-purple-400";
-        });
-
-        // Language toggle
-        document.getElementById('langToggleBtn').addEventListener('click', () => {
-            currentLang = currentLang === 'en' ? 'ar' : 'en';
-            document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-            document.getElementById('langToggleBtn').innerText = currentLang === 'ar' ? 'English' : 'عربي';
-
-            const t = I18N[currentLang];
-            document.getElementById('subHeaderDesc').innerText = t.subDesc;
-            document.getElementById('txtHandshakeTitle').innerText = t.handshakeTitle;
-            document.getElementById('txtRekey').innerText = t.rekeyBtn;
-            document.getElementById('txtMsgTitle').innerText = t.msgTitle;
-            document.getElementById('txtFhssTitle').innerText = t.fhssTitle;
-            document.getElementById('txtShorTitle').innerText = t.shorTitle;
-        });
-    </script>
+    <!-- Modular TypeScript Application Bundle -->
+    <script type="module" src="/src/main.ts"></script>
 </body>
 </html>

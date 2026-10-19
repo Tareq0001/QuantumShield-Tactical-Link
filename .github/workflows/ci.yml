@@ -1,0 +1,58 @@
+name: QuantumShield Tactical COMSEC & PQC Verification CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  pqc-typescript-suite:
+    name: TypeScript ML-KEM / BB84 / AEAD Verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Typecheck & Run Cryptographic Unit Tests
+        run: |
+          npm run lint
+          npm run test
+          npm run build
+
+  cpp-lattice-core:
+    name: C++17 Constant-Time NTT & Keccak Sponge Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Compile C++17 NTT Lattice Core
+        run: |
+          g++ -std=c++17 -O3 -Wall -Wextra -Werror -pedantic -c cpp_crypto/ntt_lattice_core.cpp -o ntt_lattice_core.o
+
+  python-qkd-channel-sim:
+    name: Python QKD Attenuation & NIST SP 800-22 Entropy Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python Dependencies
+        run: pip install -r python_comsec/requirements.txt
+
+      - name: Execute QKD Channel & Entropy Self-Test
+        run: python python_comsec/qkd_channel_simulator.py --self-test
