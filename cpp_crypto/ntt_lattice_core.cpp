@@ -3,24 +3,16 @@
 namespace quantumshield {
 namespace lattice {
 
-// Precomputed powers of primitive 256th root of unity (zeta = 17) in bit-reversed order, Montgomery form
+// Exact FIPS 203 powers of primitive 256th root of unity (zeta = 17 mod 3329) in bit-reversed order
 static constexpr std::array<int16_t, 128> ZETAS = {{
-  -1044, -758, -359, -1037, 1493, 1439, 286, 391,
-  -383, -506, -587, 866, -1141, -548, 480, 1551,
-  247, -1376, 1269, 1374, -712, 1146, 1406, 442,
-  -1349, -1537, 1025, 439, 148, -1388, 1488, 203,
-  -1422, -1274, -485, -1546, -108, 977, 856, -1147,
-  -132, -1502, 1353, 563, -1112, 608, 1133, 497,
-  1381, -538, -1532, 1163, -835, 1222, -1134, -41,
-  1282, -1130, 1076, 61, -1124, 764, 1521, -852,
-  -1358, 642, -90, 893, 1251, -1549, 1371, 793,
-  871, 149, -834, -586, 1351, 126, 437, -1202,
-  -440, 1512, 1111, -1320, 1238, 595, -1367, -1115,
-  1334, -998, 460, -847, 989, 1402, -145, 963,
-  1197, 853, -1390, 1277, -1009, 1032, 1081, 747,
-  -1043, 1114, 1167, 1087, -1383, 1120, -1104, 1380,
-  -1185, 1135, 1164, -1341, -1283, 1178, -1107, 1218,
-  1092, -1386, 1121, -1105, 1382, -1186, 1136, 1165
+  1, 1729, 2580, 3289, 2642, 630, 1897, 848, 1062, 1919, 193, 797, 2786, 3260, 569, 1746,
+  296, 2447, 1339, 1476, 3046, 56, 2240, 1333, 1426, 2094, 535, 2882, 2393, 2879, 1974, 821,
+  289, 331, 3253, 1756, 1197, 2304, 2277, 2055, 650, 1977, 2513, 632, 2865, 33, 1320, 1915,
+  2319, 1435, 807, 452, 1438, 2868, 1534, 2402, 2647, 2617, 1481, 648, 2474, 3110, 1227, 910,
+  17, 2761, 583, 2649, 1637, 723, 2288, 1100, 1409, 2662, 3281, 233, 756, 2156, 3015, 3050,
+  1703, 1651, 2789, 1789, 1847, 952, 1461, 2687, 939, 2308, 2437, 2388, 733, 2337, 268, 641,
+  1584, 2298, 2037, 3220, 375, 2549, 2090, 1645, 1063, 319, 2773, 757, 2099, 561, 2466, 2594,
+  2804, 1092, 403, 1026, 1143, 2150, 2775, 886, 1722, 1212, 1874, 1029, 2110, 2935, 885, 2154
 }};
 
 int16_t montgomery_reduce(int32_t a) noexcept {
@@ -36,7 +28,8 @@ int16_t barrett_reduce(int16_t a) noexcept {
 }
 
 int16_t fqmul(int16_t a, int16_t b) noexcept {
-  return montgomery_reduce(static_cast<int32_t>(a) * static_cast<int32_t>(b));
+  int32_t prod = (static_cast<int32_t>(a) * static_cast<int32_t>(b)) % KYBER_Q;
+  return static_cast<int16_t>((prod + KYBER_Q) % KYBER_Q);
 }
 
 void ntt(int16_t r[KYBER_N]) noexcept {
@@ -46,8 +39,8 @@ void ntt(int16_t r[KYBER_N]) noexcept {
       int16_t zeta = ZETAS[k++];
       for (size_t j = start; j < start + len; ++j) {
         int16_t t = fqmul(zeta, r[j + len]);
-        r[j + len] = static_cast<int16_t>(r[j] - t);
-        r[j] = static_cast<int16_t>(r[j] + t);
+        r[j + len] = static_cast<int16_t>((((r[j] - t) % KYBER_Q) + KYBER_Q) % KYBER_Q);
+        r[j] = static_cast<int16_t>((r[j] + t) % KYBER_Q);
       }
     }
   }
@@ -60,34 +53,16 @@ void inv_ntt(int16_t r[KYBER_N]) noexcept {
       int16_t zeta = ZETAS[k--];
       for (size_t j = start; j < start + len; ++j) {
         int16_t t = r[j];
-        r[j] = barrett_reduce(static_cast<int16_t>(t + r[j + len]));
-        r[j + len] = fqmul(zeta, static_cast<int16_t>(r[j + len] - t));
+        r[j] = static_cast<int16_t>((t + r[j + len]) % KYBER_Q);
+        r[j + len] = static_cast<int16_t>((((zeta * (r[j + len] - t)) % KYBER_Q) + KYBER_Q) % KYBER_Q);
       }
     }
   }
 
-  // Precomputed factor f = 3307 (128^-1 * R mod q)
-  constexpr int16_t F_INV128 = 3307;
+  constexpr int16_t F_INV128 = 3303;
   for (size_t j = 0; j < KYBER_N; ++j) {
-    r[j] = fqmul(r[j], F_INV128);
+    r[j] = static_cast<int16_t>((((r[j] * F_INV128) % KYBER_Q) + KYBER_Q) % KYBER_Q);
   }
-}
-
-static void poly_basemul_montgomery(
-    int16_t r[2],
-    const int16_t a[2],
-    const int16_t b[2],
-    int16_t zeta
-) noexcept {
-  int16_t a0 = a[0], a1 = a[1];
-  int16_t b0 = b[0], b1 = b[1];
-
-  r[0] = montgomery_reduce(
-      static_cast<int32_t>(fqmul(a1, b1)) * zeta + static_cast<int32_t>(a0) * b0
-  );
-  r[1] = montgomery_reduce(
-      static_cast<int32_t>(a0) * b1 + static_cast<int32_t>(a1) * b0
-  );
 }
 
 void poly_pointwise_montgomery(
@@ -96,9 +71,17 @@ void poly_pointwise_montgomery(
     const int16_t b[KYBER_N]
 ) noexcept {
   for (size_t i = 0; i < 64; ++i) {
-    int16_t zeta = ZETAS[64 + i];
-    poly_basemul_montgomery(&c[4 * i], &a[4 * i], &b[4 * i], zeta);
-    poly_basemul_montgomery(&c[4 * i + 2], &a[4 * i + 2], &b[4 * i + 2], static_cast<int16_t>(-zeta));
+    int16_t gamma = ZETAS[64 + i];
+
+    int32_t a0 = a[4 * i], a1 = a[4 * i + 1];
+    int32_t b0 = b[4 * i], b1 = b[4 * i + 1];
+    c[4 * i] = static_cast<int16_t>((((a0 * b0 + a1 * b1 * gamma) % KYBER_Q) + KYBER_Q) % KYBER_Q);
+    c[4 * i + 1] = static_cast<int16_t>((((a0 * b1 + a1 * b0) % KYBER_Q) + KYBER_Q) % KYBER_Q);
+
+    int32_t a2 = a[4 * i + 2], a3 = a[4 * i + 3];
+    int32_t b2 = b[4 * i + 2], b3 = b[4 * i + 3];
+    c[4 * i + 2] = static_cast<int16_t>((((a2 * b2 - a3 * b3 * gamma) % KYBER_Q) + KYBER_Q) % KYBER_Q);
+    c[4 * i + 3] = static_cast<int16_t>((((a2 * b3 + a3 * b2) % KYBER_Q) + KYBER_Q) % KYBER_Q);
   }
 }
 

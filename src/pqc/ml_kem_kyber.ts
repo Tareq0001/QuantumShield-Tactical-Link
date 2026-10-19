@@ -173,7 +173,7 @@ export function shake256(msg: Uint8Array, outputLen: number): Uint8Array {
 }
 
 // ============================================================================
-// ML-KEM-1024 Parameters & Modulo Arithmetic
+// ML-KEM-1024 Parameters & Modulo Arithmetic (NIST FIPS 203)
 // ============================================================================
 
 export const KYBER_N = 256;
@@ -189,49 +189,20 @@ export const KYBER_CIPHERTEXTBYTES = KYBER_K * 32 * KYBER_DU + 32 * KYBER_DV; //
 export const KYBER_SECRETKEYBYTES = KYBER_K * 384 + KYBER_PUBLICKEYBYTES + 32 + 32; // 3168 bytes
 export const KYBER_SSBYTES = 32;
 
-// Precomputed powers of primitive 256th root of unity zeta = 17 mod 3329 in bit-reversed order
+// Exact FIPS 203 powers of primitive 256th root of unity (zeta = 17 mod 3329) in bit-reversed order
 export const ZETAS: Int16Array = new Int16Array([
-  -1044, -758, -359, -1037, 1493, 1439, 286, 391,
-  -383, -506, -587, 866, -1141, -548, 480, 1551,
-  247, -1376, 1269, 1374, -712, 1146, 1406, 442,
-  -1349, -1537, 1025, 439, 148, -1388, 1488, 203,
-  -1422, -1274, -485, -1546, -108, 977, 856, -1147,
-  -132, -1502, 1353, 563, -1112, 608, 1133, 497,
-  1381, -538, -1532, 1163, -835, 1222, -1134, -41,
-  1282, -1130, 1076, 61, -1124, 764, 1521, -852,
-  -1358, 642, -90, 893, 1251, -1549, 1371, 793,
-  871, 149, -834, -586, 1351, 126, 437, -1202,
-  -440, 1512, 1111, -1320, 1238, 595, -1367, -1115,
-  1334, -998, 460, -847, 989, 1402, -145, 963,
-  1197, 853, -1390, 1277, -1009, 1032, 1081, 747,
-  -1043, 1114, 1167, 1087, -1383, 1120, -1104, 1380,
-  -1185, 1135, 1164, -1341, -1283, 1178, -1107, 1218,
-  1092, -1386, 1121, -1105, 1382, -1186, 1136, 1165,
+  1, 1729, 2580, 3289, 2642, 630, 1897, 848, 1062, 1919, 193, 797, 2786, 3260, 569, 1746,
+  296, 2447, 1339, 1476, 3046, 56, 2240, 1333, 1426, 2094, 535, 2882, 2393, 2879, 1974, 821,
+  289, 331, 3253, 1756, 1197, 2304, 2277, 2055, 650, 1977, 2513, 632, 2865, 33, 1320, 1915,
+  2319, 1435, 807, 452, 1438, 2868, 1534, 2402, 2647, 2617, 1481, 648, 2474, 3110, 1227, 910,
+  17, 2761, 583, 2649, 1637, 723, 2288, 1100, 1409, 2662, 3281, 233, 756, 2156, 3015, 3050,
+  1703, 1651, 2789, 1789, 1847, 952, 1461, 2687, 939, 2308, 2437, 2388, 733, 2337, 268, 641,
+  1584, 2298, 2037, 3220, 375, 2549, 2090, 1645, 1063, 319, 2773, 757, 2099, 561, 2466, 2594,
+  2804, 1092, 403, 1026, 1143, 2150, 2775, 886, 1722, 1212, 1874, 1029, 2110, 2935, 885, 2154
 ]);
 
 /**
- * Constant-time Montgomery reduction.
- * Computes a * R^-1 mod q, where R = 2^16.
- */
-export function montgomeryReduce(a: number): number {
-  const qInv = -3327; // q^-1 mod 2^16
-  const t = (a * qInv) & 0xffff;
-  const signedT = t > 32767 ? t - 65536 : t;
-  let u = (a - signedT * KYBER_Q) >> 16;
-  return u;
-}
-
-/**
- * Barrett reduction.
- * Computes a mod q for |a| <= 28*q.
- */
-export function barrettReduce(a: number): number {
-  const v = Math.round((a * 5) / 16384);
-  return a - v * KYBER_Q;
-}
-
-/**
- * Forward Number Theoretic Transform (NTT) in-place.
+ * Forward Number Theoretic Transform (NTT) in-place (NIST FIPS 203 Algorithm 9).
  */
 export function ntt(r: Int16Array): void {
   let k = 1;
@@ -239,16 +210,16 @@ export function ntt(r: Int16Array): void {
     for (let start = 0; start < 256; start += 2 * len) {
       const zeta = ZETAS[k++];
       for (let j = start; j < start + len; j++) {
-        const t = montgomeryReduce(zeta * r[j + len]);
-        r[j + len] = r[j] - t;
-        r[j] = r[j] + t;
+        const t = (((zeta * r[j + len]) % KYBER_Q) + KYBER_Q) % KYBER_Q;
+        r[j + len] = (((r[j] - t) % KYBER_Q) + KYBER_Q) % KYBER_Q;
+        r[j] = (r[j] + t) % KYBER_Q;
       }
     }
   }
 }
 
 /**
- * Inverse Number Theoretic Transform (invNTT) in-place.
+ * Inverse Number Theoretic Transform (invNTT) in-place (NIST FIPS 203 Algorithm 10).
  */
 export function invNtt(r: Int16Array): void {
   let k = 127;
@@ -257,49 +228,32 @@ export function invNtt(r: Int16Array): void {
       const zeta = ZETAS[k--];
       for (let j = start; j < start + len; j++) {
         const t = r[j];
-        r[j] = barrettReduce(t + r[j + len]);
-        r[j + len] = montgomeryReduce(zeta * (r[j + len] - t));
+        r[j] = (t + r[j + len]) % KYBER_Q;
+        r[j + len] = (((zeta * (r[j + len] - t)) % KYBER_Q) + KYBER_Q) % KYBER_Q;
       }
     }
   }
-  // Multiply by f = 3307 (Montgomery factor of 128^-1)
-  const f = 3307;
   for (let j = 0; j < 256; j++) {
-    r[j] = montgomeryReduce(r[j] * f);
+    r[j] = (((r[j] * 3303) % KYBER_Q) + KYBER_Q) % KYBER_Q;
   }
 }
 
 /**
- * Pointwise multiplication of two polynomials in NTT domain.
- */
-export function polyBasemulMontgomery(
-  r: Int16Array,
-  rOffset: number,
-  a: Int16Array,
-  aOffset: number,
-  b: Int16Array,
-  bOffset: number,
-  zeta: number
-): void {
-  const a0 = a[aOffset];
-  const a1 = a[aOffset + 1];
-  const b0 = b[bOffset];
-  const b1 = b[bOffset + 1];
-
-  r[rOffset] = montgomeryReduce(
-    montgomeryReduce(a1 * b1) * zeta + a0 * b0
-  );
-  r[rOffset + 1] = montgomeryReduce(a0 * b1 + a1 * b0);
-}
-
-/**
- * Multiplies two polynomials in NTT domain.
+ * Pointwise multiplication of two polynomials in NTT domain (NIST FIPS 203 Algorithm 11).
  */
 export function polyMultiplyNtt(r: Int16Array, a: Int16Array, b: Int16Array): void {
   for (let i = 0; i < 64; i++) {
-    const zeta = ZETAS[64 + i];
-    polyBasemulMontgomery(r, 4 * i, a, 4 * i, b, 4 * i, zeta);
-    polyBasemulMontgomery(r, 4 * i + 2, a, 4 * i + 2, b, 4 * i + 2, -zeta);
+    const gamma = ZETAS[64 + i];
+
+    const a0 = a[4 * i], a1 = a[4 * i + 1];
+    const b0 = b[4 * i], b1 = b[4 * i + 1];
+    r[4 * i] = (((a0 * b0 + a1 * b1 * gamma) % KYBER_Q) + KYBER_Q) % KYBER_Q;
+    r[4 * i + 1] = (((a0 * b1 + a1 * b0) % KYBER_Q) + KYBER_Q) % KYBER_Q;
+
+    const a2 = a[4 * i + 2], a3 = a[4 * i + 3];
+    const b2 = b[4 * i + 2], b3 = b[4 * i + 3];
+    r[4 * i + 2] = (((a2 * b2 - a3 * b3 * gamma) % KYBER_Q) + KYBER_Q) % KYBER_Q;
+    r[4 * i + 3] = (((a2 * b3 + a3 * b2) % KYBER_Q) + KYBER_Q) % KYBER_Q;
   }
 }
 
@@ -310,13 +264,12 @@ export function cbd2(buf: Uint8Array): Int16Array {
   const r = new Int16Array(KYBER_N);
   for (let i = 0; i < KYBER_N / 8; i++) {
     let t = buf[4 * i] | (buf[4 * i + 1] << 8) | (buf[4 * i + 2] << 16) | (buf[4 * i + 3] << 24);
-    let d = 0;
     for (let j = 0; j < 8; j++) {
       const a = (t >> (4 * j)) & 0x3;
       const b = (t >> (4 * j + 2)) & 0x3;
       const aCount = (a & 1) + ((a >> 1) & 1);
       const bCount = (b & 1) + ((b >> 1) & 1);
-      r[8 * i + j] = aCount - bCount;
+      r[8 * i + j] = ((aCount - bCount) % KYBER_Q + KYBER_Q) % KYBER_Q;
     }
   }
   return r;
@@ -613,7 +566,7 @@ export class MLKEM1024 {
       }
       invNtt(acc);
       for (let idx = 0; idx < KYBER_N; idx++) {
-        acc[idx] = barrettReduce(acc[idx] + e1[i][idx]);
+        acc[idx] = (((acc[idx] + e1[i][idx]) % KYBER_Q) + KYBER_Q) % KYBER_Q;
       }
       u.push(acc);
     }
@@ -640,7 +593,7 @@ export class MLKEM1024 {
 
     const v = new Int16Array(KYBER_N);
     for (let idx = 0; idx < KYBER_N; idx++) {
-      v[idx] = barrettReduce(vAcc[idx] + e2[idx] + msgPoly[idx]);
+      v[idx] = (((vAcc[idx] + e2[idx] + msgPoly[idx]) % KYBER_Q) + KYBER_Q) % KYBER_Q;
     }
 
     // Pack ciphertext: Compress_11(u) || Compress_5(v)
@@ -680,7 +633,6 @@ export class MLKEM1024 {
 
     const pkOffset = KYBER_K * 384;
     const pk = secretKey.subarray(pkOffset, pkOffset + KYBER_PUBLICKEYBYTES);
-    const hPk = secretKey.subarray(pkOffset + KYBER_PUBLICKEYBYTES, pkOffset + KYBER_PUBLICKEYBYTES + 32);
     const z = secretKey.subarray(pkOffset + KYBER_PUBLICKEYBYTES + 32, pkOffset + KYBER_PUBLICKEYBYTES + 64);
 
     // Decompress u and v from ciphertext
@@ -716,9 +668,12 @@ export class MLKEM1024 {
       let byteVal = 0;
       for (let bit = 0; bit < 8; bit++) {
         const diff = ((v[8 * i + bit] - sDotU[8 * i + bit]) % KYBER_Q + KYBER_Q) % KYBER_Q;
-        // Check if diff is closer to 1665 than to 0 (distance to 1665 < 832)
-        const distToCenter = Math.abs(diff - 1665);
-        const bitVal = distToCenter < 832 ? 1 : 0;
+        const dist = Math.min(
+          Math.abs(diff - 1665),
+          Math.abs(diff - 1665 - KYBER_Q),
+          Math.abs(diff - 1665 + KYBER_Q)
+        );
+        const bitVal = dist < 832 ? 1 : 0;
         byteVal |= bitVal << bit;
       }
       recoveredM[i] = byteVal;
