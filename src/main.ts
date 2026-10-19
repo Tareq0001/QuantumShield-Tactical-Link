@@ -106,7 +106,12 @@ function formatHexStream(buf: Uint8Array, maxBytes = 80): string {
     const chunk = slice.subarray(i, i + 16);
     const hexParts = Array.from(chunk).map((b) => b.toString(16).padStart(2, '0')).join(' ');
     const ascii = Array.from(chunk)
-      .map((b) => (b >= 32 && b <= 126 ? String.fromCharCode(b) : '.'))
+      .map((b) => {
+        if (b === 60) return '&lt;';
+        if (b === 62) return '&gt;';
+        if (b === 38) return '&amp;';
+        return b >= 32 && b <= 126 ? String.fromCharCode(b) : '.';
+      })
       .join('');
     const addr = i.toString(16).padStart(4, '0');
     lines.push(`${addr}: ${hexParts.padEnd(48, ' ')}  ${ascii}`);
